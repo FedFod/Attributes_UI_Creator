@@ -1,0 +1,27 @@
+{
+    "transform": {
+        "interface_color" : [1, 0.2, 0.1, 0.2],
+        "position" : ["flonum", "flonum", "flonum"],
+        "rotatexyz" : ["flonum", "flonum", "flonum"],
+        "scale" : ["flonum", "flonum", "flonum"]
+    },
+    "material" : {
+        "interface_color" : [0.2, 0.2, 1, 0.2],
+        "color" : ["flonum", "flonum", "flonum", "flonum"],
+        "mat_diffuse" : ["flonum", "flonum", "flonum", "flonum"],
+        "mat_specular" : ["flonum", "flonum", "flonum", "flonum"],
+        "mat_ambient" : ["flonum", "flonum", "flonum", "flonum"]
+    },
+    "blending" : {
+        "blend_enable" : ["toggle"],
+        "depth_enable" : ["toggle"]
+    },
+    "test" : {
+        "position" : [ "toggle" ],
+        "rotatexyz" : [ "toggle" ]
+    }, 
+    "ciao" : {
+        "color" : [ "number" ],
+        "rotatexyz" : [ "toggle", "number", "number" ]
+    }
+}

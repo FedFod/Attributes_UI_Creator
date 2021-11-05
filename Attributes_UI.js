@@ -1,98 +1,58 @@
 autowatch = 1;
-include("Attributes_Types.js");
+outlets = 1;
 include("Obj_Creators.js");
+include("BPatcherGenerator.js");
+include("Selector.js");
 
-var p = this.patcher; 
+var p = this.patcher;
+var pp = this.patcher.parentpatcher; 
 
-var attrArgsList = [];
-var attruiList = [];
+var globalObj = new Global("interfaces");
 
-function fillAttrArgs() {
-    var args = arrayfromargs(arguments);
-    var contains = 0;
-    for (var i=0; i<attrArgsList.length; i++) {
-        if (attrArgsList[i][0] == args[0]) {
-            attrArgsList[i] = args;
-            contains = 1;
-        }
-    }
-    if (!contains) {
-        attrArgsList.push(args);
-    }
-    // print(args)
+var mouseState = { 
+    isClicked: 0,
+    prevClick: 0,
+    x: -1000,
+    y: -1000,
+    prevX: -1000,
+    prevY: -1000,
+    calcPosDiff: function() {
+        return [this.x-this.prevX, this.y-this.prevY];
+    }   
 }
+var selector = null;
+globalObj.interfaceGenerator = new BPatcherGenerator();
 
-function createAttributesUI() {
-    print("how many attributes: "+attrArgsList.length);
-    removeAttributesObjects();
-    var offsetFromName = 65;
+var dictName = "interfacesDict";
 
-    // for (var i=0; i<attrArgsList.length; i++) {
-    //     var indexOfArg = transforms.indexOf(attrArgsList[i][0]);
-    //     if (indexOfArg >= 0) {
-    //         var position = [100, (indexOfArg*25)+30];
-    //         var attrName = attrArgsList[i][0];
-    //         attruiList[attrName] = { attrNameComment: "", attrArgsObjects: [], listener: {} }; 
+// function setDictName(dictName) {
+//     dictName = dictName;
+//     if (selector != null) {
+//         p.remove(selector);
+//     }
+//     createSelector();
+// }
 
-    //         attruiList[attrName].attrNameComment = createAttrNameComment(position, attrName);
-    //         position[0]+=offsetFromName;
-    //         createArgsObjectsForAttr(i, attrArgsList, attruiList, position, attrName); 
-    //     }
-    // }
+function createSelector() {
+    selector = new Selector([0,0], p.getnamed("interface_selector"));
 
-    for (var i=0; i<attrArgsList.length; i++) {
-        var position = [100, (i*25)+30];
-        var attrName = attrArgsList[i][0];
-        var attrArgsLength = attrArgsList[i].length;
-        attruiList[attrName] = { attrNameComment: "", attrArgsObjects: [], listener: {} }; 
-
-        attruiList[attrName].attrNameComment = createAttrNameComment(position, attrName);
-
-        for (var j=1; j<attrArgsLength; j++) {
-            var argVal = attrArgsList[i][j];
-            var argObjPosition = [position[0]+offsetFromName+(j*53), position[1]];
-            attruiList[attrName].attrArgsObjects.push(createArgObject(attrArgsLength, argObjPosition, argVal, j, attrName))
-            attruiList[attrName].listener = new MaxobjListener(attruiList[attrName].attrArgsObjects[j-1], callbackFun);
-        }
+    if (selector != null) {
+        selector.addListener();
     }
 }
 
-function removeAttributesObjects() {
+function destroyUIInterfaces() {
+    globalObj.interfaceGenerator.destroyInterfaces();
+}
+
+function destroyAll() { 
+    selector.destroy();
+    selector = null;
+    globalObj.interfaceGenerator.destroyInterfaces();
     gc();
-    for (var obj in attruiList) {
-        p.remove(attruiList[obj].attrNameComment);
-        for (var num in attruiList[obj].attrArgsObjects) {
-            p.remove(attruiList[obj].attrArgsObjects[num]);
-        }
-    }
-    attruiList = [];
-}
-
-function callbackFun(data) {
-    var attrName = data.maxobject.attributeName;
-    var indexInAttr = data.maxobject.indexInAttr;
-    var outMessage = attrName;
-    var argValues = [];
-    var thisObj = attruiList[attrName].attrArgsObjects[indexInAttr];
-
-    if (thisObj.type === "umenu") {
-        thisObj.objVal = thisObj.items[data.value];
-    } else {
-        thisObj.objVal = data.value;
-    }
-
-    for (var i=0; i<attruiList[attrName].attrArgsObjects.length; i++) {
-        argValues.push(attruiList[attrName].attrArgsObjects[i].objVal);
-    }
-    outlet(0, outMessage, argValues);
 }
 
 function notifydeleted() {
-    print("cleaning up");
-    removeAttributesObjects();
-    emptyAttributeStatesList();
+    gc();
 }
 
-function emptyAttributeStatesList() {
-    attrArgsList = [];
-}

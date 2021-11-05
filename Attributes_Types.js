@@ -32,3 +32,4 @@ var toMinAndMax = {
     gl_color: [0, 1000]
 }
  
+var OB3D = ["jit.gl.gridshape", "jit.gl.mesh"];
